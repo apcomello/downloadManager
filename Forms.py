@@ -49,21 +49,21 @@ class MainWindow:
         save_button.setMaximumWidth(100)
         save_button.clicked.connect(self.save)
         
-        new_folder_box = QtGui.QCheckBox()
-        new_folder_box.setText("Create new folder")
-        self.first_column.addWidget(new_folder_box)
+        self.new_folder_box = QtGui.QCheckBox()
+        self.new_folder_box.setText("Create new folder")
+        self.first_column.addWidget(self.new_folder_box)
         
-        always_box = QtGui.QCheckBox()
-        always_box.setText("Always repeat")
-        self.first_column.addWidget(always_box)
+        self.always_box = QtGui.QCheckBox()
+        self.always_box.setText("Always repeat")
+        self.first_column.addWidget(self.always_box)
 		
-        delete_box = QtGui.QCheckBox()
-        delete_box.setText("Delete")
-        self.first_column.addWidget(delete_box)
+        self.delete_box = QtGui.QCheckBox()
+        self.delete_box.setText("Delete")
+        self.first_column.addWidget(self.delete_box)
 
-        rename_box = QtGui.QCheckBox()
-        rename_box.setText("Rename files")
-        self.first_column.addWidget(rename_box)
+        self.rename_box = QtGui.QCheckBox()
+        self.rename_box.setText("Rename files")
+        self.first_column.addWidget(self.rename_box)
         
         self.rename_patterns_input = QtGui.QLineEdit()
         self.first_column.addWidget(self.rename_patterns_input)
@@ -72,15 +72,16 @@ class MainWindow:
         self.origin_folder.setMinimumWidth(300)
         self.first_row.addWidget(self.origin_folder)
         
-        self.origin_folder_button = QtGui.QPushButton("...")
-        self.origin_folder_button.clicked.connect(self._set_folder)
+        self.origin_folder_button = QtGui.QPushButton("Source")
+        self.origin_folder_button.clicked.connect(self._set_origin_folder)
         self.first_row.addWidget(self.origin_folder_button)
         
         self.destination_folder = QtGui.QLineEdit()
         self.destination_folder.setMinimumWidth(300)
         self.second_row.addWidget(self.destination_folder)
         
-        self.destination_folder_button = QtGui.QPushButton("...")
+        self.destination_folder_button = QtGui.QPushButton("Destination")
+        self.destination_folder_button.clicked.connect(self._set_destination_folder)
         self.second_row.addWidget(self.destination_folder_button)
         
         self.all_folders_list = QtGui.QTextEdit()
@@ -95,11 +96,24 @@ class MainWindow:
         self.keyword = self.keyword_search_input.text()
         self.assistent.find_all_files(str(self.keyword), self.all_folders_list)
         
-    def _set_folder(self):
-        self.assistent.folder = QtGui.QFileDialog.getExistingDirectory(None, "Select folder: ", "C:\Users\Ana Paula Mello\Downloads", QtGui. QFileDialog.ShowDirsOnly)
-        
+    def _set_origin_folder(self):
+        self.assistent.origin_folder = QtGui.QFileDialog.getExistingDirectory(None, "Select folder: ", "C:\Users\Ana Paula Mello\Downloads", QtGui. QFileDialog.ShowDirsOnly)
+        self.origin_folder.setText(self.assistent.origin_folder)
+    
+    def _set_destination_folder(self):
+        self.assistent.destination_folder = QtGui.QFileDialog.getExistingDirectory(None, "Select folder: ", "C:\Users\Ana Paula Mello\Downloads", QtGui. QFileDialog.ShowDirsOnly)
+        self.destination_folder.setText(self.assistent.destination_folder)
+
     def save(self):
         pass
     
     def run(self):
-        pass
+    
+        if self.new_folder_box.isChecked():
+            new_folder = str(self.assistent.destination_folder) + "\\" + str(self.keyword)
+            self.assistent.create_new_folder(new_folder)
+            self.assistent.destination_folder = new_folder
+            self.assistent.move_files()
+            
+        elif self.delete_box.isChecked():
+            self.assistent.delete()
