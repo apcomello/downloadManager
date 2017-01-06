@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from PyQt4 import QtGui, QtCore
 import sys
 import Manager
@@ -6,11 +9,13 @@ class MainWindow:
 
     def __init__(self):
     
+        # Main widgets
         self.window = QtGui.QMainWindow()
         self.main_widget = QtGui.QWidget()
         
         self.window.setCentralWidget(self.main_widget)
         
+        # Layout
         self.horizontal_box = QtGui.QHBoxLayout()
         self.first_column = QtGui.QVBoxLayout()
         self.second_column = QtGui.QVBoxLayout()
@@ -27,6 +32,7 @@ class MainWindow:
         self.main_widget.setLayout(self.horizontal_box)
         
         self.assistent = Manager.Manager()
+        self.new_file_names = None
     
     def open_window(self):
                 
@@ -53,6 +59,9 @@ class MainWindow:
         self.new_folder_box.setText("Create new folder")
         self.first_column.addWidget(self.new_folder_box)
         
+        self.folder_name_input = QtGui.QLineEdit()
+        self.first_column.addWidget(self.folder_name_input)
+        
         self.always_box = QtGui.QCheckBox()
         self.always_box.setText("Always repeat")
         self.first_column.addWidget(self.always_box)
@@ -64,7 +73,7 @@ class MainWindow:
         self.rename_box = QtGui.QCheckBox()
         self.rename_box.setText("Rename files")
         self.first_column.addWidget(self.rename_box)
-        
+                
         self.rename_patterns_input = QtGui.QLineEdit()
         self.first_column.addWidget(self.rename_patterns_input)
         
@@ -109,11 +118,13 @@ class MainWindow:
     
     def run(self):
     
+        if self.rename_box.isChecked():
+            pattern = self.rename_patterns_input.text()
+            self.new_file_names = self.assistent.rename(pattern)
         if self.new_folder_box.isChecked():
-            new_folder = str(self.assistent.destination_folder) + "\\" + str(self.keyword)
-            self.assistent.create_new_folder(new_folder)
-            self.assistent.destination_folder = new_folder
-            self.assistent.move_files()
-            
+            folder_name = self.folder_name_input.text()
+            self.assistent.new_folder(str(folder_name), self.new_file_names)
         elif self.delete_box.isChecked():
             self.assistent.delete()
+        else:
+            self.assistent.move_files(self.new_file_names)
