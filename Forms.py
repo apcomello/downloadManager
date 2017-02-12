@@ -62,20 +62,20 @@ class MainWindow:
         self.folder_name_input = QtGui.QLineEdit()
         self.first_column.addWidget(self.folder_name_input)
         
-        self.always_box = QtGui.QCheckBox()
-        self.always_box.setText("Always repeat")
-        self.first_column.addWidget(self.always_box)
+        # self.always_box = QtGui.QCheckBox()
+        # self.always_box.setText("Always repeat")
+        # self.first_column.addWidget(self.always_box)
 		
-        self.delete_box = QtGui.QCheckBox()
-        self.delete_box.setText("Delete")
-        self.first_column.addWidget(self.delete_box)
-
         self.rename_box = QtGui.QCheckBox()
         self.rename_box.setText("Rename files")
         self.first_column.addWidget(self.rename_box)
-                
+        
         self.rename_patterns_input = QtGui.QLineEdit()
         self.first_column.addWidget(self.rename_patterns_input)
+                
+        self.delete_box = QtGui.QCheckBox()
+        self.delete_box.setText("Delete")
+        self.first_column.addWidget(self.delete_box)
         
         self.origin_folder = QtGui.QLineEdit()
         self.origin_folder.setMinimumWidth(300)
@@ -102,7 +102,6 @@ class MainWindow:
         self.window.show()
         
     def get_info(self):
-        print "HERE"
         self.keyword = self.keyword_search_input.text()
         self.assistent.find_all_files(str(self.keyword), self.all_folders_list)
         
@@ -119,12 +118,21 @@ class MainWindow:
     
     def run(self):
     
+        ## TODO: Not allow both Delete and Rename to be checked
+    
         if self.rename_box.isChecked():
             pattern = self.rename_patterns_input.text()
             self.new_file_names = self.assistent.rename(pattern)
         if self.new_folder_box.isChecked():
             folder_name = self.folder_name_input.text()
-            self.assistent.new_folder(str(folder_name), self.new_file_names)
+            if not self.assistent.create_new_folder(str(folder_name)):
+                warning = QtGui.QMessageBox()
+                warning.setText("This folder already exists")
+                retval = warning.exec_()
+            
+            self.assistent.move_files(self.new_file_names)
+
+                
         elif self.delete_box.isChecked():
             self.assistent.delete()
         else:

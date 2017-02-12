@@ -13,7 +13,3 @@ main_window = Forms.MainWindow()
 main_window.open_window()
 
 sys.exit(app.exec_())
-
-# manager = Manager.Manager()
-
-# manager.find_all_files()

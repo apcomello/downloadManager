@@ -8,14 +8,18 @@ import shutil
 class Manager:
 
     def __init__(self):
+        
+        ## CHANGE THIS## CHANGE THIS## CHANGE THIS## CHANGE THIS## CHANGE THIS
         self.origin_folder = "C:\Users\Ana Paula Mello\Downloads"
+        ## CHANGE THIS## CHANGE THIS## CHANGE THIS## CHANGE THIS## CHANGE THIS
+        
         self.dentination_folder = None
         self.selected_files = []
         self.selected_directories = []
         self.new_file_names = None
         
-    def set_keyword(self, word):
-        pass
+    # def set_keyword(self, word):
+        # pass
         
     def move_files(self, new_file_names):
         '''
@@ -44,34 +48,51 @@ class Manager:
         display.clear()
         
         for root, dirs, files in os.walk(unicode(self.origin_folder)):      # Finds files with the  keywords even inside folders
-            for dir in dirs:
-                matching_keyword = re.match(r'(.*)'+keyword.lower()+'(.*)', dir.lower())
-                if matching_keyword:
-                    display.append(dir)
-                    self.selected_directories.append(os.path.join(root, dir))
-                    
-            for file in files:
-                matching_keyword = re.match(r'(.*)'+keyword.lower()+'(.*)', file.lower())
-                if matching_keyword:
-                    display.append(file)
-                    self.selected_files.append((root, file))
-                    
-        print self.selected_files, self.selected_directories
-                    
+        
+            # Keyword is not a wildcard
+            if not re.match(r'\*\.(.*)', keyword.lower()):
+                # Finds all directoris with the keyword
+                for dir in dirs:
+                    matching_keyword = re.match(r'(.*)'+keyword.lower()+'(.*)', dir.lower())
+                    if matching_keyword:
+                        display.append(dir)
+                        self.selected_directories.append(os.path.join(root, dir))
+                
+                # Finds all the files with the keyword
+                for file in files:
+                    matching_keyword = re.match(r'(.*)'+keyword.lower()+'(.*)', file.lower())
+                    if matching_keyword:
+                        display.append(file)
+                        self.selected_files.append((root, file))
+            
+            # Keyword is a wildcard
+            else:
+                file_extension = str(keyword.lower()).split(".")[-1]
+                for file in files:
+                    matching_keyword = re.match(r'(.*)\.'+ file_extension.lower(), file.lower())
+                    if matching_keyword:
+                        display.append(file)
+                        self.selected_files.append((root, file))
+                                            
     def create_new_folder(self, folder_name):
         '''
         Creates a new folder with the given name
         '''
+        
+        ## Might need to change all of this. I don't like it very much
+        
+        new_folder = os.path.join(str(self.destination_folder), folder_name)
+        self.destination_folder = new_folder
 
         try:
-            os.mkdir(folder_name)
+            os.mkdir(new_folder)
+            return True
         except WindowsError, e:
-            ## TODO: make pop up to treat this exception
-            print "Folder already exists"
+            return False
             
     def rename(self, pattern):
         '''
-        
+        Renames all files selected according to a given pattern
         '''
 
         season_episode = None
@@ -100,25 +121,17 @@ class Manager:
 
     def delete(self):
         '''
-        
+        Deletes all selected folders and directories
         '''
-
-        ## TODO: add wildcard option
         
-        for dir in self.selected_directories:
+        for dir in self.selected_directories:   # For directories
             shutil.rmtree(dir)
         
-        for file in self.selected_files:
+        for file in self.selected_files:    # For files
             if file[0] not in self.selected_directories:       # Doesn't include the path for files inside selected folder
                 file_path =  os.path.join(file[0], file[1])
                 os.remove(file_path)
+                
+    def save_preferences(self):
+        pass
         
-    def new_folder(self, folder_name, new_file_names):
-        '''
-        
-        '''
-
-        new_folder = os.path.join(str(self.destination_folder), folder_name)
-        self.create_new_folder(new_folder)
-        self.destination_folder = new_folder
-        self.move_files(new_file_names)
