@@ -102,6 +102,7 @@ class MainWindow:
         self.window.show()
         
     def get_info(self):
+        print "HERE"
         self.keyword = self.keyword_search_input.text()
         self.assistent.find_all_files(str(self.keyword), self.all_folders_list)
         

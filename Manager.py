@@ -3,6 +3,7 @@
 
 import os
 import re
+import shutil
 
 class Manager:
 
@@ -10,6 +11,7 @@ class Manager:
         self.origin_folder = "C:\Users\Ana Paula Mello\Downloads"
         self.dentination_folder = None
         self.selected_files = []
+        self.selected_directories = []
         self.new_file_names = None
         
     def set_keyword(self, word):
@@ -38,15 +40,24 @@ class Manager:
         '''
 
         self.selected_files = []
+        self.selected_directories = []
         display.clear()
         
         for root, dirs, files in os.walk(unicode(self.origin_folder)):      # Finds files with the  keywords even inside folders
+            for dir in dirs:
+                matching_keyword = re.match(r'(.*)'+keyword.lower()+'(.*)', dir.lower())
+                if matching_keyword:
+                    display.append(dir)
+                    self.selected_directories.append(os.path.join(root, dir))
+                    
             for file in files:
                 matching_keyword = re.match(r'(.*)'+keyword.lower()+'(.*)', file.lower())
                 if matching_keyword:
                     display.append(file)
                     self.selected_files.append((root, file))
-
+                    
+        print self.selected_files, self.selected_directories
+                    
     def create_new_folder(self, folder_name):
         '''
         Creates a new folder with the given name
@@ -94,9 +105,13 @@ class Manager:
 
         ## TODO: add wildcard option
         
+        for dir in self.selected_directories:
+            shutil.rmtree(dir)
+        
         for file in self.selected_files:
-            file_path = str(self.origin_folder) + "\\" + file
-            os.remove(file_path)
+            if file[0] not in self.selected_directories:       # Doesn't include the path for files inside selected folder
+                file_path =  os.path.join(file[0], file[1])
+                os.remove(file_path)
         
     def new_folder(self, folder_name, new_file_names):
         '''
